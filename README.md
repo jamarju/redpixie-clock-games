@@ -2,4 +2,4 @@
 
 Live site:
 
-https://jamarju.github.io/redpixie-clock-games/
+https://jamarju.github.io/redpixie-games/
