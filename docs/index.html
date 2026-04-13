@@ -453,6 +453,107 @@
         gap: 16px;
       }
 
+      .read-board {
+        display: grid;
+        gap: 14px;
+      }
+
+      .token-pool {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(31, 41, 51, 0.08);
+      }
+
+      .pool-label {
+        font-size: 14px;
+        font-weight: 800;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      .token-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .drop-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .drop-zone {
+        min-height: 110px;
+        padding: 12px;
+        border-radius: 22px;
+        border: 3px dashed rgba(108, 92, 231, 0.22);
+        background: rgba(255, 255, 255, 0.92);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      }
+
+      .drop-zone.hot {
+        border-color: var(--violet);
+        background: rgba(245, 240, 255, 0.98);
+        transform: scale(1.01);
+      }
+
+      .drop-zone.empty {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .drop-zone-label {
+        font-size: 13px;
+        opacity: 0.72;
+      }
+
+      .token-card {
+        min-width: 96px;
+        min-height: 64px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        color: white;
+        font-size: 19px;
+        font-weight: 800;
+        border: 0;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .token-card.minute {
+        background: linear-gradient(135deg, var(--mint), var(--mint-soft));
+      }
+
+      .token-card.hour {
+        background: linear-gradient(135deg, var(--violet), var(--violet-soft));
+      }
+
+      .token-card.dragging {
+        opacity: 0.3;
+      }
+
+      .drag-layer {
+        position: fixed;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        z-index: 60;
+      }
+
       .choice-group {
         text-align: center;
       }
@@ -1050,30 +1151,57 @@
         return <div className={`feedback ${result}`}>{msg}</div>;
       }
 
+      function TokenCard({ item, kind, dragging, onPointerDown }) {
+        return (
+          <button
+            type="button"
+            className={`token-card ${kind}${dragging ? " dragging" : ""}`}
+            onPointerDown={onPointerDown}
+          >
+            {item.label}
+          </button>
+        );
+      }
+
       function ReadMode({ onBack, score, setScore, streak, setStreak }) {
         const [time, setTime] = useState(rTime);
         const [roman, setRoman] = useState(() => Math.random() < 0.5);
         const [hO, setHO] = useState([]);
         const [mO, setMO] = useState([]);
-        const [selH, setSelH] = useState(null);
-        const [selM, setSelM] = useState(null);
+        const [slots, setSlots] = useState({ left: null, right: null });
+        const [dragItem, setDragItem] = useState(null);
+        const [dragPoint, setDragPoint] = useState(null);
+        const [hotZone, setHotZone] = useState(null);
         const [result, setResult] = useState(null);
         const [msg, setMsg] = useState("");
         const [tPos, setTPos] = useState(0);
         const [tSpeech, setTSpeech] = useState("");
         const [tWon, setTWon] = useState(false);
         const [tDir, setTDir] = useState("fwd");
+        const dragRef = useRef(null);
 
         const go = useCallback(() => {
           const t = rTime();
           setTime(t);
           const spokenH = t.m > 30 ? (t.h === 12 ? 1 : t.h + 1) : t.h;
-          const wh = sh([...Array(12)].map((_, i) => i + 1).filter((x) => x !== spokenH)).slice(0, 2);
-          setHO(sh([spokenH, ...wh]));
-          const wm = sh(FIVES.filter((x) => x !== t.m)).slice(0, 2);
-          setMO(sh([t.m, ...wm]));
-          setSelH(null);
-          setSelM(null);
+          const wh = sh([...Array(12)].map((_, i) => i + 1).filter((x) => x !== spokenH)).slice(0, 2).map((value) => ({
+            id: `h-${value}`,
+            kind: "hour",
+            value,
+            label: String(value),
+          }));
+          setHO(sh([{ id: `h-${spokenH}`, kind: "hour", value: spokenH, label: String(spokenH) }, ...wh]));
+          const wm = sh(FIVES.filter((x) => x !== t.m)).slice(0, 2).map((value) => ({
+            id: `m-${value}`,
+            kind: "minute",
+            value,
+            label: ML[value],
+          }));
+          setMO(sh([{ id: `m-${t.m}`, kind: "minute", value: t.m, label: ML[t.m] }, ...wm]));
+          setSlots({ left: null, right: null });
+          setDragItem(null);
+          setDragPoint(null);
+          setHotZone(null);
           setResult(null);
           setMsg("");
           setRoman(Math.random() < 0.5);
@@ -1091,35 +1219,95 @@
           go();
         }, [go]);
 
-        useEffect(() => {
-          if (selH !== null && selM !== null && result === null) {
-            const spokenH = time.m > 30 ? (time.h === 12 ? 1 : time.h + 1) : time.h;
-            const timer = window.setTimeout(() => {
-              if (selH === spokenH && selM === time.m) {
-                setResult("correct");
-                setMsg(rP(CHEERS));
-                setScore((s) => s + 1);
-                setStreak((s) => s + 1);
-                setTDir("fwd");
-                setTPos((p) => {
-                  const np = Math.min(p + 1, STEPS);
-                  if (np >= STEPS) setTWon(true);
-                  return np;
-                });
-                setTSpeech(rP(TURTLE_FWD));
-              } else {
-                setResult("wrong");
-                setMsg(`${rP(OOPS)} — It was ${tTxt(time.h, time.m)}`);
-                setStreak(0);
-                setTDir("back");
-                setTPos((p) => Math.max(p - 1, 0));
-                setTSpeech(rP(TURTLE_BACK));
-              }
-            }, 500);
-            return () => window.clearTimeout(timer);
+        const detectZone = useCallback((x, y) => {
+          const el = document.elementFromPoint(x, y);
+          if (!el) return null;
+          const zone = el.closest("[data-drop-zone]");
+          return zone ? zone.getAttribute("data-drop-zone") : null;
+        }, []);
+
+        const removeFromSlots = useCallback((itemId, currentSlots) => ({
+          left: currentSlots.left && currentSlots.left.id === itemId ? null : currentSlots.left,
+          right: currentSlots.right && currentSlots.right.id === itemId ? null : currentSlots.right,
+        }), []);
+
+        const moveItemToZone = useCallback((item, zone) => {
+          setSlots((current) => {
+            const cleaned = removeFromSlots(item.id, current);
+            if (zone !== "left" && zone !== "right") return cleaned;
+            return { ...cleaned, [zone]: item };
+          });
+          setResult(null);
+          setMsg("");
+        }, [removeFromSlots]);
+
+        const handleGlobalPointerMove = useCallback((e) => {
+          if (!dragRef.current) return;
+          setDragPoint({ x: e.clientX, y: e.clientY });
+          setHotZone(detectZone(e.clientX, e.clientY));
+        }, [detectZone]);
+
+        const handleGlobalPointerUp = useCallback((e) => {
+          if (!dragRef.current) return;
+          const item = dragRef.current.item;
+          const zone = detectZone(e.clientX, e.clientY);
+          moveItemToZone(item, zone);
+          dragRef.current = null;
+          setDragItem(null);
+          setDragPoint(null);
+          setHotZone(null);
+          window.removeEventListener("pointermove", handleGlobalPointerMove);
+          window.removeEventListener("pointerup", handleGlobalPointerUp);
+          window.removeEventListener("pointercancel", handleGlobalPointerUp);
+        }, [detectZone, handleGlobalPointerMove, moveItemToZone]);
+
+        const startDrag = useCallback((item, e) => {
+          e.preventDefault();
+          dragRef.current = { item };
+          setDragItem(item);
+          setDragPoint({ x: e.clientX, y: e.clientY });
+          setHotZone(detectZone(e.clientX, e.clientY));
+          window.addEventListener("pointermove", handleGlobalPointerMove);
+          window.addEventListener("pointerup", handleGlobalPointerUp);
+          window.addEventListener("pointercancel", handleGlobalPointerUp);
+        }, [detectZone, handleGlobalPointerMove, handleGlobalPointerUp]);
+
+        useEffect(() => () => {
+          window.removeEventListener("pointermove", handleGlobalPointerMove);
+          window.removeEventListener("pointerup", handleGlobalPointerUp);
+          window.removeEventListener("pointercancel", handleGlobalPointerUp);
+        }, [handleGlobalPointerMove, handleGlobalPointerUp]);
+
+        const checkReadAnswer = useCallback(() => {
+          if (!slots.left || !slots.right || result) return;
+          const spokenH = time.m > 30 ? (time.h === 12 ? 1 : time.h + 1) : time.h;
+          const assigned = [slots.left, slots.right];
+          const hourOk = assigned.some((item) => item.kind === "hour" && item.value === spokenH);
+          const minuteOk = assigned.some((item) => item.kind === "minute" && item.value === time.m);
+          if (hourOk && minuteOk) {
+            setResult("correct");
+            setMsg(rP(CHEERS));
+            setScore((s) => s + 1);
+            setStreak((s) => s + 1);
+            setTDir("fwd");
+            setTPos((p) => {
+              const np = Math.min(p + 1, STEPS);
+              if (np >= STEPS) setTWon(true);
+              return np;
+            });
+            setTSpeech(rP(TURTLE_FWD));
+          } else {
+            setResult("wrong");
+            setMsg(`${rP(OOPS)} — It was ${tTxt(time.h, time.m)}`);
+            setStreak(0);
+            setTDir("back");
+            setTPos((p) => Math.max(p - 1, 0));
+            setTSpeech(rP(TURTLE_BACK));
           }
-          return undefined;
-        }, [result, selH, selM, setScore, setStreak, time.h, time.m]);
+        }, [result, setScore, setStreak, slots.left, slots.right, time.h, time.m]);
+
+        const poolHours = hO.filter((item) => item.id !== slots.left?.id && item.id !== slots.right?.id);
+        const poolMinutes = mO.filter((item) => item.id !== slots.left?.id && item.id !== slots.right?.id);
 
         return (
           <div className="app-shell">
@@ -1153,65 +1341,91 @@
                   </section>
 
                   <section className="game-right compact-panel">
-                    <div className="choices">
-                      <div className="choice-group">
-                        <div className="choice-label">
-                          <span style={{ color: "#6C5CE7" }}>●</span> Hour:
+                    <div className="read-board">
+                      <div className="drop-row">
+                        {["left", "right"].map((zone) => (
+                          <div
+                            key={zone}
+                            className={`drop-zone ${hotZone === zone ? "hot" : ""} ${slots[zone] ? "" : "empty"}`}
+                            data-drop-zone={zone}
+                          >
+                            {slots[zone] ? (
+                              <TokenCard
+                                item={slots[zone]}
+                                kind={slots[zone].kind}
+                                dragging={dragItem?.id === slots[zone].id}
+                                onPointerDown={(e) => !result && startDrag(slots[zone], e)}
+                              />
+                            ) : (
+                              <div>
+                                <div style={{ fontSize: 18, fontWeight: 800 }}>Drop Here</div>
+                                <div className="drop-zone-label">Any card can go in either target.</div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="token-pool" data-drop-zone="bank">
+                        <div className="pool-label">
+                          <span style={{ color: "#00B894" }}>●</span> Minute cards
                         </div>
-                        <div className="button-row">
-                          {(() => {
-                            const spokenH = time.m > 30 ? (time.h === 12 ? 1 : time.h + 1) : time.h;
-                            return hO.map((h) => (
-                              <Btn
-                                key={h}
-                                onClick={() => !result && setSelH(h)}
-                                sel={selH === h && !result}
-                                ok={result && h === spokenH}
-                                bad={result === "wrong" && selH === h && h !== spokenH}
-                                dis={!!result}
-                              >
-                                {h}
-                              </Btn>
-                            ));
-                          })()}
+                        <div className="token-row">
+                          {poolMinutes.map((item) => (
+                            <TokenCard
+                              key={item.id}
+                              item={item}
+                              kind="minute"
+                              dragging={dragItem?.id === item.id}
+                              onPointerDown={(e) => !result && startDrag(item, e)}
+                            />
+                          ))}
                         </div>
                       </div>
 
-                      <div className="choice-group">
-                        <div className="choice-label">
-                          <span style={{ color: "#00B894" }}>●</span> Minutes:
+                      <div className="token-pool" data-drop-zone="bank">
+                        <div className="pool-label">
+                          <span style={{ color: "#6C5CE7" }}>●</span> Hour cards
                         </div>
-                        <div className="button-row">
-                          {mO.map((m) => (
-                            <Btn
-                              key={m}
-                              onClick={() => !result && setSelM(m)}
-                              sel={selM === m && !result}
-                              ok={result && m === time.m}
-                              bad={result === "wrong" && selM === m && m !== time.m}
-                              dis={!!result}
-                            >
-                              {ML[m]}
-                            </Btn>
+                        <div className="token-row">
+                          {poolHours.map((item) => (
+                            <TokenCard
+                              key={item.id}
+                              item={item}
+                              kind="hour"
+                              dragging={dragItem?.id === item.id}
+                              onPointerDown={(e) => !result && startDrag(item, e)}
+                            />
                           ))}
                         </div>
                       </div>
                     </div>
 
                     <FeedbackBanner result={result} msg={msg} />
-                    {result ? (
-                      <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+                      <Btn big onClick={checkReadAnswer} color="#00B894" dis={!slots.left || !slots.right || !!result}>
+                        Check
+                      </Btn>
+                      {result ? (
                         <Btn big onClick={go} color="#00B894">
                           Next ➡️
                         </Btn>
-                      </div>
-                    ) : null}
+                      ) : null}
+                    </div>
                   </section>
 
                   {result === "correct" ? <Confetti /> : null}
                 </div>
               )}
             </main>
+            {dragItem && dragPoint ? (
+              <div
+                className="drag-layer"
+                style={{ transform: `translate(${dragPoint.x - 52}px, ${dragPoint.y - 34}px)` }}
+              >
+                <div className={`token-card ${dragItem.kind}`}>{dragItem.label}</div>
+              </div>
+            ) : null}
           </div>
         );
       }
