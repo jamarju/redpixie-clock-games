@@ -8,13 +8,13 @@
     />
     <meta
       name="description"
-      content="Redpixie Clock Games is a full-screen clock-learning game for kids."
+      content="Redpixie Games is a full-screen learning games site for kids."
     />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%90%A2%3C/text%3E%3C/svg%3E"
     />
-    <title>Redpixie Clock Games</title>
+    <title>Redpixie Games</title>
     <link rel="preconnect" href="https://unpkg.com" />
     <style>
       :root {
@@ -164,6 +164,106 @@
         padding: clamp(16px, 2vw, 22px);
       }
 
+      .bonds-shell {
+        width: min(100%, 1080px);
+        display: grid;
+        gap: 14px;
+      }
+
+      .bonds-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .bonds-stat {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 18px;
+        padding: 14px;
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+
+      .bonds-question {
+        background: linear-gradient(135deg, #fff1c1, #ffd59e);
+        border-radius: 26px;
+        padding: clamp(18px, 3vw, 28px);
+        box-shadow: var(--shadow);
+        display: grid;
+        gap: 18px;
+      }
+
+      .bonds-equation {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(10px, 2vw, 24px);
+        flex-wrap: wrap;
+      }
+
+      .bonds-box {
+        width: min(24vw, 110px);
+        height: min(24vw, 110px);
+        min-width: 82px;
+        min-height: 82px;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(34px, 5vw, 48px);
+        font-weight: 800;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+      }
+
+      .bonds-input {
+        width: min(24vw, 110px);
+        height: min(24vw, 110px);
+        min-width: 82px;
+        min-height: 82px;
+        border-radius: 24px;
+        border: 4px solid rgba(108, 92, 231, 0.24);
+        text-align: center;
+        font-size: clamp(34px, 5vw, 48px);
+        font-weight: 800;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.96);
+      }
+
+      .bonds-input:focus {
+        outline: none;
+        border-color: var(--violet);
+        box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.12);
+      }
+
+      .bonds-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .rankings {
+        display: grid;
+        gap: 10px;
+      }
+
+      .ranking-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .ranking-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+
       .title {
         margin: 0;
         color: var(--violet);
@@ -186,6 +286,47 @@
         width: 100%;
         display: grid;
         gap: 16px;
+      }
+
+      .home-grid {
+        width: 100%;
+        display: grid;
+        gap: 16px;
+      }
+
+      .game-card {
+        width: 100%;
+        padding: 24px 28px;
+        border-radius: 24px;
+        color: #fff;
+        cursor: pointer;
+        border: 0;
+        text-align: left;
+        font-weight: 800;
+        font-size: clamp(21px, 2.7vw, 28px);
+        box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
+        transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+      }
+
+      .game-card:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 22px 38px rgba(0, 0, 0, 0.14);
+      }
+
+      .game-card.clock {
+        background: linear-gradient(135deg, var(--violet), var(--violet-soft));
+      }
+
+      .game-card.bonds {
+        background: linear-gradient(135deg, #ff8a65, #ffca28);
+      }
+
+      .game-card small {
+        display: block;
+        margin-top: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        opacity: 0.95;
       }
 
       .name-card {
@@ -544,6 +685,10 @@
         .game-right {
           width: min(100%, 760px);
         }
+
+        .bonds-stats {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-height: 820px) and (min-width: 921px) {
@@ -651,6 +796,15 @@
         "✨ That was DEE-LICIOUS!",
       ];
       const STEPS = 8;
+      const NAME_STORAGE_KEY = "redpixie-games.kid-name";
+      const RANKINGS_STORAGE_KEY = "redpixie-games.number-bonds-rankings";
+      const DEFAULT_RANKINGS = [
+        { name: "Ana", score: 850, target: 10 },
+        { name: "Luis", score: 920, target: 20 },
+        { name: "Sofia", score: 780, target: 10 },
+        { name: "Marco", score: 1100, target: 20 },
+        { name: "Elena", score: 650, target: 10 },
+      ];
 
       const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
       const rP = (arr) => arr[rand(0, arr.length - 1)];
@@ -703,7 +857,20 @@
         );
       }
 
-      function ClockFace({ children, onPM, onPD, onPL, svgRef, roman = false }) {
+      function HandleKnob({ angle, color }) {
+        const r = (angle * Math.PI) / 180;
+        const orbit = R + 12;
+        const x = CX + orbit * Math.cos(r);
+        const y = CY + orbit * Math.sin(r);
+        return (
+          <g>
+            <circle cx={x} cy={y} r="12" fill={color} stroke="white" strokeWidth="4" />
+            <circle cx={x} cy={y} r="4" fill="white" opacity="0.95" />
+          </g>
+        );
+      }
+
+      function ClockFace({ children, onPM, onPD, onPU, onPL, svgRef, roman = false }) {
         return (
           <svg
             ref={svgRef}
@@ -717,6 +884,8 @@
             }}
             onPointerMove={onPM}
             onPointerDown={onPD}
+            onPointerUp={onPU}
+            onPointerCancel={onPU}
             onPointerLeave={onPL}
             role="img"
             aria-label="Clock face"
@@ -732,6 +901,15 @@
             </defs>
             <circle cx={CX} cy={CY} r={R + 4} fill="#6C5CE7" filter="url(#sh)" />
             <circle cx={CX} cy={CY} r={R} fill="url(#cg)" />
+            <circle
+              cx={CX}
+              cy={CY}
+              r={R + 12}
+              fill="none"
+              stroke="rgba(108, 92, 231, 0.18)"
+              strokeWidth="10"
+              strokeDasharray="4 14"
+            />
             {[...Array(60)].map((_, i) => {
               const a = ((i * 6 - 90) * Math.PI) / 180;
               const five = i % 5 === 0;
@@ -1042,27 +1220,30 @@
       function SetMode({ onBack, score, setScore, streak, setStreak }) {
         const [time, setTime] = useState(rTime);
         const [roman, setRoman] = useState(() => Math.random() < 0.5);
-        const [phase, setPhase] = useState("minute");
-        const [placedHourCD, setPlacedHourCD] = useState(null);
-        const [placedMinCD, setPlacedMinCD] = useState(null);
-        const [ghostCD, setGhostCD] = useState(null);
+        const [activeHand, setActiveHand] = useState("minute");
+        const [placedHourCD, setPlacedHourCD] = useState(0);
+        const [placedMinCD, setPlacedMinCD] = useState(0);
+        const [touchedHour, setTouchedHour] = useState(false);
+        const [touchedMinute, setTouchedMinute] = useState(false);
         const [result, setResult] = useState(null);
         const [msg, setMsg] = useState("");
         const [tPos, setTPos] = useState(0);
         const [tSpeech, setTSpeech] = useState("");
         const [tWon, setTWon] = useState(false);
         const [tDir, setTDir] = useState("fwd");
+        const [dragPointerId, setDragPointerId] = useState(null);
         const svgRef = useRef(null);
 
         const go = useCallback(() => {
-          const t = rTime();
-          setTime(t);
-          setPhase("minute");
-          setPlacedHourCD(null);
-          setPlacedMinCD(null);
-          setGhostCD(null);
+          setTime(rTime());
+          setActiveHand("minute");
+          setPlacedHourCD(0);
+          setPlacedMinCD(0);
+          setTouchedHour(false);
+          setTouchedMinute(false);
           setResult(null);
           setMsg("");
+          setDragPointerId(null);
           setRoman(Math.random() < 0.5);
         }, []);
 
@@ -1092,94 +1273,115 @@
           return (((raw + 90) % 360) + 360) % 360;
         }, []);
 
+        const updateDragAngle = useCallback(
+          (e) => {
+            const raw = getRawCD(e);
+            if (raw === null) return;
+            setResult(null);
+            if (activeHand === "minute") {
+              setPlacedMinCD((Math.round(raw / 30) * 30) % 360);
+              setTouchedMinute(true);
+            } else {
+              setPlacedHourCD(raw);
+              setTouchedHour(true);
+            }
+          },
+          [activeHand, getRawCD]
+        );
+
         const onPM = useCallback(
           (e) => {
-            if (phase === "done") return;
-            const raw = getRawCD(e);
-            if (raw === null) return;
-            if (phase === "minute") {
-              setGhostCD((Math.round(raw / 30) * 30) % 360);
-            } else {
-              setGhostCD(raw);
-            }
+            if (dragPointerId === null || e.pointerId !== dragPointerId || tWon) return;
+            updateDragAngle(e);
           },
-          [getRawCD, phase]
+          [dragPointerId, tWon, updateDragAngle]
         );
 
-        const onPL = useCallback(() => {
-          setGhostCD(null);
-        }, []);
-
-        const placeHandAtPointer = useCallback(
+        const finishDrag = useCallback(
           (e) => {
-            if (phase === "done") return;
-            e.preventDefault();
-            const raw = getRawCD(e);
-            if (raw === null) return;
-            if (phase === "minute") {
-              const snapped = (Math.round(raw / 30) * 30) % 360;
-              setGhostCD(snapped);
-              setPlacedMinCD(snapped);
-              setPhase("hour");
-              return;
+            if (dragPointerId === null || e.pointerId !== dragPointerId) return;
+            updateDragAngle(e);
+            const svg = svgRef.current;
+            if (svg && svg.hasPointerCapture(e.pointerId)) {
+              svg.releasePointerCapture(e.pointerId);
             }
-
-            setGhostCD(raw);
-            setPlacedHourCD(raw);
-            setPhase("done");
+            setDragPointerId(null);
+            setActiveHand((current) => {
+              if (current === "minute" && !touchedHour) return "hour";
+              return current;
+            });
           },
-          [getRawCD, phase]
+          [dragPointerId, touchedHour, updateDragAngle]
         );
 
-        useEffect(() => {
-          if (phase === "done" && placedHourCD !== null && placedMinCD !== null) {
-            const timer = window.setTimeout(() => {
-              const correctHourCD = ((time.h % 12) * 30 + time.m * 0.5) % 360;
-              const correctMinCD = (time.m * 6) % 360;
-              const hourOk = angDiff(placedHourCD, correctHourCD) <= 7.5;
-              const minOk = angDiff(placedMinCD, correctMinCD) < 1;
+        const onPL = useCallback(() => {}, []);
 
-              if (hourOk && minOk) {
-                setResult("correct");
-                setMsg(rP(CHEERS));
-                setScore((s) => s + 1);
-                setStreak((s) => s + 1);
-                setTDir("fwd");
-                setTPos((p) => {
-                  const np = Math.min(p + 1, STEPS);
-                  if (np >= STEPS) setTWon(true);
-                  return np;
-                });
-                setTSpeech(rP(TURTLE_FWD));
-              } else {
-                const hints = [];
-                if (!hourOk) hints.push(`the hour hand should be closer to ${time.h}`);
-                if (!minOk) hints.push(`the minutes should be ${ML[time.m]}`);
-                setResult("wrong");
-                setMsg(`${rP(OOPS)} — ${hints.join(" and ")}`);
-                setStreak(0);
-                setTDir("back");
-                setTPos((p) => Math.max(p - 1, 0));
-                setTSpeech(rP(TURTLE_BACK));
-              }
-            }, 400);
-            return () => window.clearTimeout(timer);
-          }
-          return undefined;
-        }, [phase, placedHourCD, placedMinCD, setScore, setStreak, time.h, time.m]);
+        const startDrag = useCallback(
+          (e) => {
+            if (tWon) return;
+            e.preventDefault();
+            const svg = svgRef.current;
+            if (svg) {
+              svg.setPointerCapture(e.pointerId);
+            }
+            setDragPointerId(e.pointerId);
+            updateDragAngle(e);
+          },
+          [tWon, updateDragAngle]
+        );
 
         const cdToSvg = (cd) => cd - 90;
-        const ghostSvgAngle = ghostCD !== null ? cdToSvg(ghostCD) : null;
-        const hHandSvg = placedHourCD !== null ? cdToSvg(placedHourCD) : null;
-        const mHandSvg = placedMinCD !== null ? cdToSvg(placedMinCD) : null;
+        const hHandSvg = cdToSvg(placedHourCD);
+        const mHandSvg = cdToSvg(placedMinCD);
+        const activeSvgAngle = activeHand === "minute" ? mHandSvg : hHandSvg;
 
-        const phaseColor = phase === "minute" ? "#00B894" : "#6C5CE7";
+        const phaseColor = activeHand === "minute" ? "#00B894" : "#6C5CE7";
         const phaseLabel =
-          phase === "minute"
-            ? "👆 Click on the clock to place the MINUTE hand"
-            : phase === "hour"
-              ? "👆 Now click to place the HOUR hand"
-              : "";
+          activeHand === "minute"
+            ? "👆 Drag the green handle, then switch hands whenever you want to adjust again."
+            : "👆 Drag the purple handle. You can switch back to the minute hand any time.";
+
+        const resetHands = useCallback(() => {
+          setPlacedHourCD(0);
+          setPlacedMinCD(0);
+          setTouchedHour(false);
+          setTouchedMinute(false);
+          setActiveHand("minute");
+          setResult(null);
+          setMsg("");
+        }, []);
+
+        const checkPlacement = useCallback(() => {
+          const correctHourCD = ((time.h % 12) * 30 + time.m * 0.5) % 360;
+          const correctMinCD = (time.m * 6) % 360;
+          const hourOk = angDiff(placedHourCD, correctHourCD) <= 7.5;
+          const minOk = angDiff(placedMinCD, correctMinCD) < 1;
+
+          if (hourOk && minOk) {
+            setResult("correct");
+            setMsg(rP(CHEERS));
+            setScore((s) => s + 1);
+            setStreak((s) => s + 1);
+            setTDir("fwd");
+            setTPos((p) => {
+              const np = Math.min(p + 1, STEPS);
+              if (np >= STEPS) setTWon(true);
+              return np;
+            });
+            setTSpeech(rP(TURTLE_FWD));
+            return;
+          }
+
+          const hints = [];
+          if (!hourOk) hints.push(`the hour hand should be closer to ${time.h}`);
+          if (!minOk) hints.push(`the minutes should be ${ML[time.m]}`);
+          setResult("wrong");
+          setMsg(`${rP(OOPS)} — ${hints.join(" and ")}`);
+          setStreak(0);
+          setTDir("back");
+          setTPos((p) => Math.max(p - 1, 0));
+          setTSpeech(rP(TURTLE_BACK));
+        }, [placedHourCD, placedMinCD, setScore, setStreak, time.h, time.m]);
 
         return (
           <div className="app-shell">
@@ -1208,22 +1410,23 @@
                       <ClockFace
                         roman={roman}
                         svgRef={svgRef}
-                        onPM={phase !== "done" ? onPM : undefined}
-                        onPD={phase !== "done" ? placeHandAtPointer : undefined}
-                        onPL={phase !== "done" ? onPL : undefined}
+                        onPM={onPM}
+                        onPD={startDrag}
+                        onPU={finishDrag}
+                        onPL={onPL}
                       >
-                        {ghostSvgAngle !== null && phase === "minute" ? (
-                          <Hand angle={ghostSvgAngle} len={95} color="#00B894" w={4} op={0.3} />
-                        ) : null}
-                        {ghostSvgAngle !== null && phase === "hour" ? (
-                          <Hand angle={ghostSvgAngle} len={65} color="#6C5CE7" w={7} op={0.3} />
-                        ) : null}
-                        {hHandSvg !== null ? <Hand angle={hHandSvg} len={65} color="#6C5CE7" w={7} /> : null}
-                        {mHandSvg !== null ? <Hand angle={mHandSvg} len={95} color="#00B894" w={4} /> : null}
-                        {result === "wrong" ? (
+                        <Hand angle={hHandSvg} len={65} color="#6C5CE7" w={7} />
+                        <Hand angle={mHandSvg} len={95} color="#00B894" w={4} />
+                        {activeHand === "minute" && activeSvgAngle !== null ? (
                           <>
-                            <Hand angle={hDeg(time.h, time.m)} len={65} color="#FDCB6E" w={7} op={0.7} />
-                            <Hand angle={mDeg(time.m)} len={95} color="#FDCB6E" w={4} op={0.7} />
+                            <Hand angle={activeSvgAngle} len={108} color="#00B894" w={4} op={0.55} />
+                            <HandleKnob angle={activeSvgAngle} color="#00B894" />
+                          </>
+                        ) : null}
+                        {activeHand === "hour" && activeSvgAngle !== null ? (
+                          <>
+                            <Hand angle={activeSvgAngle} len={108} color="#6C5CE7" w={7} op={0.55} />
+                            <HandleKnob angle={activeSvgAngle} color="#6C5CE7" />
                           </>
                         ) : null}
                       </ClockFace>
@@ -1238,19 +1441,454 @@
 
                     {phaseLabel ? <div className="hint" style={{ color: phaseColor }}>{phaseLabel}</div> : null}
 
+                    <div className="button-row">
+                      <Btn onClick={() => setActiveHand("minute")} sel={activeHand === "minute"} color="#00B894">
+                        Minute Hand
+                      </Btn>
+                      <Btn onClick={() => setActiveHand("hour")} sel={activeHand === "hour"} color="#6C5CE7">
+                        Hour Hand
+                      </Btn>
+                    </div>
+
+                    <div className="score-line" style={{ textAlign: "center" }}>
+                      Switch between the two hand buttons as many times as you need before checking.
+                    </div>
+
                     <FeedbackBanner result={result} msg={msg} />
-                    {result ? (
-                      <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+                      <Btn big onClick={checkPlacement} color="#00B894">
+                        {result === "wrong" ? "Check Again" : "Check Clock"}
+                      </Btn>
+                      <Btn big onClick={resetHands} color="#6C5CE7">
+                        Reset Hands
+                      </Btn>
+                      {result === "correct" ? (
                         <Btn big onClick={go} color="#00B894">
                           Next ➡️
                         </Btn>
-                      </div>
-                    ) : null}
+                      ) : null}
+                    </div>
                   </section>
 
                   {result === "correct" ? <Confetti /> : null}
                 </div>
               )}
+            </main>
+          </div>
+        );
+      }
+
+      function NumberBondsGame({ kidName, onBack }) {
+        const [targetNumber, setTargetNumber] = useState(10);
+        const [givenNumber, setGivenNumber] = useState(0);
+        const [userAnswer, setUserAnswer] = useState("");
+        const [message, setMessage] = useState("");
+        const [score, setScore] = useState(0);
+        const [correctAnswer, setCorrectAnswer] = useState(0);
+        const [questionsCompleted, setQuestionsCompleted] = useState(0);
+        const [timeLeft, setTimeLeft] = useState(15);
+        const [gameState, setGameState] = useState("start");
+        const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+        const [rankings, setRankings] = useState(DEFAULT_RANKINGS);
+        const [scoreSaved, setScoreSaved] = useState(false);
+
+        useEffect(() => {
+          try {
+            const saved = window.localStorage.getItem(RANKINGS_STORAGE_KEY);
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (Array.isArray(parsed) && parsed.length) {
+                setRankings(parsed);
+              }
+            }
+          } catch (_error) {
+          }
+        }, []);
+
+        const persistRankings = useCallback((nextRankings) => {
+          setRankings(nextRankings);
+          try {
+            window.localStorage.setItem(RANKINGS_STORAGE_KEY, JSON.stringify(nextRankings));
+          } catch (_error) {
+          }
+        }, []);
+
+        const generateNewQuestion = useCallback(() => {
+          const randomGiven = Math.floor(Math.random() * (targetNumber + 1));
+          setGivenNumber(randomGiven);
+          setCorrectAnswer(targetNumber - randomGiven);
+          setUserAnswer("");
+          setMessage("");
+          setQuestionStartTime(Date.now());
+          setTimeLeft(15);
+        }, [targetNumber]);
+
+        const startGame = useCallback(() => {
+          setGameState("playing");
+          setScore(0);
+          setQuestionsCompleted(0);
+          setMessage("");
+          setScoreSaved(false);
+          const randomGiven = Math.floor(Math.random() * (targetNumber + 1));
+          setGivenNumber(randomGiven);
+          setCorrectAnswer(targetNumber - randomGiven);
+          setUserAnswer("");
+          setQuestionStartTime(Date.now());
+          setTimeLeft(15);
+        }, [targetNumber]);
+
+        const finishGame = useCallback(() => {
+          setGameState("finished");
+        }, []);
+
+        useEffect(() => {
+          if (gameState === "playing" && timeLeft > 0) {
+            const timer = window.setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+            return () => window.clearTimeout(timer);
+          }
+          if (gameState === "playing" && timeLeft === 0) {
+            setMessage("⏰ Time is up! 0 points this round.");
+            const timer = window.setTimeout(() => {
+              const nextCompleted = questionsCompleted + 1;
+              setQuestionsCompleted(nextCompleted);
+              if (nextCompleted >= 10) {
+                finishGame();
+              } else {
+                generateNewQuestion();
+              }
+            }, 1200);
+            return () => window.clearTimeout(timer);
+          }
+          return undefined;
+        }, [finishGame, gameState, generateNewQuestion, questionsCompleted, timeLeft]);
+
+        useEffect(() => {
+          if (gameState === "finished" && !scoreSaved && kidName) {
+            const nextRankings = [...rankings, { name: kidName, score, target: targetNumber }]
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 12);
+            persistRankings(nextRankings);
+            setScoreSaved(true);
+          }
+        }, [gameState, kidName, persistRankings, rankings, score, scoreSaved, targetNumber]);
+
+        const calculatePoints = useCallback((timeToAnswer) => {
+          const basePoints = 50;
+          const timeBonus = Math.max(0, Math.floor((10 - timeToAnswer) * 15));
+          return basePoints + timeBonus;
+        }, []);
+
+        const checkAnswer = useCallback(() => {
+          const userNum = parseInt(userAnswer, 10);
+          if (Number.isNaN(userNum)) {
+            setMessage("Type a number first.");
+            return;
+          }
+
+          if (userNum === correctAnswer) {
+            const timeToAnswer = (Date.now() - questionStartTime) / 1000;
+            const points = calculatePoints(timeToAnswer);
+            const nextCompleted = questionsCompleted + 1;
+            setScore((s) => s + points);
+            setQuestionsCompleted(nextCompleted);
+
+            if (timeToAnswer < 2) {
+              setMessage(`🚀 Super fast, ${kidName}! +${points} points!`);
+            } else if (timeToAnswer < 5) {
+              setMessage(`⚡ Great job, ${kidName}! +${points} points!`);
+            } else {
+              setMessage(`✨ Correct, ${kidName}! +${points} points!`);
+            }
+
+            window.setTimeout(() => {
+              if (nextCompleted >= 10) {
+                finishGame();
+              } else {
+                generateNewQuestion();
+              }
+            }, 1200);
+            return;
+          }
+
+          setMessage(
+            `Try again. ${givenNumber} + ${userNum} = ${givenNumber + userNum}, but you need ${targetNumber}.`
+          );
+        }, [
+          calculatePoints,
+          correctAnswer,
+          finishGame,
+          generateNewQuestion,
+          givenNumber,
+          kidName,
+          questionStartTime,
+          questionsCompleted,
+          targetNumber,
+          userAnswer,
+        ]);
+
+        const skipQuestion = useCallback(() => {
+          const nextCompleted = questionsCompleted + 1;
+          setMessage(`The answer was ${correctAnswer}.`);
+          setQuestionsCompleted(nextCompleted);
+          window.setTimeout(() => {
+            if (nextCompleted >= 10) {
+              finishGame();
+            } else {
+              generateNewQuestion();
+            }
+          }, 1200);
+        }, [correctAnswer, finishGame, generateNewQuestion, questionsCompleted]);
+
+        const resetToStart = useCallback(() => {
+          setUserAnswer("");
+          setMessage("");
+          setScore(0);
+          setQuestionsCompleted(0);
+          setTimeLeft(15);
+          setGameState("start");
+          setScoreSaved(false);
+        }, []);
+
+        const rankingTone = (index) =>
+          index === 0
+            ? { background: "#ffe082", border: "2px solid #f9a825" }
+            : index === 1
+              ? { background: "#e0e0e0", border: "2px solid #9e9e9e" }
+              : index === 2
+                ? { background: "#ffcc80", border: "2px solid #ef6c00" }
+                : { background: "rgba(255,255,255,0.88)", border: "1px solid rgba(31,41,51,0.08)" };
+
+        if (gameState === "start") {
+          return (
+            <div className="app-shell">
+              <main className="screen">
+                <section className="panel menu-panel" style={{ width: "min(100%, 920px)" }}>
+                  <div style={{ fontSize: 72, lineHeight: 1 }}>🎯🚀✨</div>
+                  <h1 className="title">Number Bonds Challenge</h1>
+                  <p className="subtitle">Build fast number bonds with {kidName} and race the timer.</p>
+
+                  <div className="compact-panel" style={{ width: "100%", textAlign: "left" }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--violet)", marginBottom: 10 }}>How to play</div>
+                    <div style={{ display: "grid", gap: 8, color: "var(--muted)", fontSize: 18 }}>
+                      <div>⚡ 10 quick questions</div>
+                      <div>⏰ 15 seconds per question</div>
+                      <div>🏃 Faster answers earn more points</div>
+                      <div>🏆 Your score is saved in the rankings automatically</div>
+                    </div>
+                  </div>
+
+                  <div className="name-card">
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--violet)" }}>Choose your target</div>
+                    <div className="button-row">
+                      <Btn onClick={() => setTargetNumber(10)} sel={targetNumber === 10} big color="#22c55e">
+                        🟢 Make 10
+                      </Btn>
+                      <Btn onClick={() => setTargetNumber(20)} sel={targetNumber === 20} big color="#3b82f6">
+                        🔵 Make 20
+                      </Btn>
+                    </div>
+                  </div>
+
+                  <div className="button-row">
+                    <Btn big onClick={startGame} color="#ff8a65">
+                      🚀 Start
+                    </Btn>
+                    <Btn big onClick={onBack} color="#6C5CE7">
+                      ⬅️ Back
+                    </Btn>
+                  </div>
+
+                  <div className="compact-panel" style={{ width: "100%" }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--violet)", marginBottom: 12 }}>
+                      🏅 Champions
+                    </div>
+                    <div className="rankings">
+                      {rankings.slice(0, 10).map((player, index) => (
+                        <div key={`${player.name}-${player.score}-${index}`} className="ranking-row" style={rankingTone(index)}>
+                          <div className="ranking-meta">
+                            <span>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}</span>
+                            <span>{player.name}</span>
+                            <span style={{ fontSize: 12, padding: "4px 8px", borderRadius: 999, background: "#dbeafe" }}>
+                              Make {player.target}
+                            </span>
+                          </div>
+                          <span style={{ fontWeight: 800, color: "#16a34a" }}>{player.score} pts</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </main>
+            </div>
+          );
+        }
+
+        if (gameState === "finished") {
+          return (
+            <div className="app-shell">
+              <main className="screen">
+                <section className="panel menu-panel" style={{ width: "min(100%, 920px)" }}>
+                  <div style={{ fontSize: 72, lineHeight: 1 }}>🏆🎉🥇</div>
+                  <h1 className="title">Amazing work, {kidName}!</h1>
+                  <p className="subtitle">You finished all 10 questions.</p>
+                  <div className="prompt-card" style={{ background: "linear-gradient(135deg, #ff8a65, #ffca28)" }}>
+                    {score} points
+                    <small>Target: make {targetNumber}</small>
+                  </div>
+                  <div className="compact-panel" style={{ width: "100%" }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--violet)", marginBottom: 12 }}>
+                      🏅 Champions
+                    </div>
+                    <div className="rankings">
+                      {rankings.slice(0, 10).map((player, index) => (
+                        <div key={`${player.name}-${player.score}-${index}`} className="ranking-row" style={rankingTone(index)}>
+                          <div className="ranking-meta">
+                            <span>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}</span>
+                            <span>{player.name}</span>
+                            <span style={{ fontSize: 12, padding: "4px 8px", borderRadius: 999, background: "#dbeafe" }}>
+                              Make {player.target}
+                            </span>
+                          </div>
+                          <span style={{ fontWeight: 800, color: "#16a34a" }}>{player.score} pts</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="button-row">
+                    <Btn big onClick={resetToStart} color="#ff8a65">
+                      🔁 Play Again
+                    </Btn>
+                    <Btn big onClick={onBack} color="#6C5CE7">
+                      🏠 Game Hub
+                    </Btn>
+                  </div>
+                </section>
+              </main>
+            </div>
+          );
+        }
+
+        return (
+          <div className="app-shell">
+            <main className="screen game-screen">
+              <div className="top-bar">
+                <button type="button" className="back-button" onClick={onBack} aria-label="Go back">
+                  ⬅️
+                </button>
+                <div className="top-bar-spacer">⭐ {score} | 🎯 {questionsCompleted + 1}/10 | ⏰ {timeLeft}s</div>
+              </div>
+
+              <div className="bonds-shell">
+                <h1 className="mode-heading">🎯 Number Bonds Challenge</h1>
+
+                <div className="bonds-stats">
+                  <div className="bonds-stat">
+                    <div style={{ fontSize: 14, color: "var(--muted)" }}>Question</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: "var(--violet)" }}>{questionsCompleted + 1}/10</div>
+                  </div>
+                  <div className="bonds-stat">
+                    <div style={{ fontSize: 14, color: "var(--muted)" }}>Score</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a" }}>⭐ {score}</div>
+                  </div>
+                  <div className="bonds-stat">
+                    <div style={{ fontSize: 14, color: "var(--muted)" }}>Time left</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: timeLeft <= 5 ? "#dc2626" : "#2563eb" }}>
+                      ⏰ {timeLeft}s
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: "#d1d5db", borderRadius: 999, height: 14, overflow: "hidden" }}>
+                  <div
+                    style={{
+                      width: `${(timeLeft / 15) * 100}%`,
+                      height: "100%",
+                      transition: "width 1s linear",
+                      background: timeLeft > 10 ? "#22c55e" : timeLeft > 5 ? "#f59e0b" : "#ef4444",
+                    }}
+                  />
+                </div>
+
+                <section className="bonds-question">
+                  <div className="prompt-card" style={{ background: "linear-gradient(135deg, #ff8a65, #ffca28)" }}>
+                    Make {targetNumber}
+                    <small>Fill in the missing number, {kidName}.</small>
+                  </div>
+
+                  <div className="bonds-equation">
+                    <div className="bonds-box" style={{ background: "#3b82f6", color: "white" }}>
+                      {givenNumber}
+                    </div>
+                    <div style={{ fontSize: "clamp(32px,5vw,48px)", fontWeight: 800, color: "var(--violet)" }}>+</div>
+                    <input
+                      className="bonds-input"
+                      type="number"
+                      inputMode="numeric"
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") checkAnswer();
+                      }}
+                      placeholder="?"
+                      min="0"
+                      max={targetNumber}
+                      autoFocus
+                    />
+                    <div style={{ fontSize: "clamp(32px,5vw,48px)", fontWeight: 800, color: "var(--violet)" }}>=</div>
+                    <div className="bonds-box" style={{ background: "var(--violet)", color: "white" }}>
+                      {targetNumber}
+                    </div>
+                  </div>
+
+                  <div className="bonds-actions">
+                    <Btn big onClick={checkAnswer} color="#22c55e">
+                      ✓ Check
+                    </Btn>
+                    <Btn big onClick={skipQuestion} color="#f59e0b">
+                      ➡️ Skip
+                    </Btn>
+                    <Btn big onClick={resetToStart} color="#ef4444">
+                      🏠 Quit
+                    </Btn>
+                  </div>
+                </section>
+
+                {message ? <FeedbackBanner result={message.includes("Correct") || message.includes("Great") || message.includes("Super") ? "correct" : "wrong"} msg={message} /> : null}
+
+                <div style={{ textAlign: "center", color: "var(--muted)", fontSize: 16 }}>
+                  Answer quickly to earn more points.
+                </div>
+              </div>
+            </main>
+          </div>
+        );
+      }
+
+      function ClockMenu({ kidName, score, streak, onBack, onRead, onSet }) {
+        return (
+          <div className="app-shell">
+            <main className="screen">
+              <section className="panel menu-panel">
+                <div className="hero-turtle" aria-hidden="true">
+                  🐢
+                </div>
+                <h1 className="title">{kidName}'s Clock Games</h1>
+                <p className="subtitle">Pick a clock challenge and help the turtle reach lunch.</p>
+                <div className="menu-actions">
+                  <button type="button" className="mode-button read" onClick={onRead}>
+                    🔍 Read the Clock
+                    <small>Look at the clock and pick the right time.</small>
+                  </button>
+                  <button type="button" className="mode-button set" onClick={onSet}>
+                    ✋ Set the Clock
+                    <small>Move the hands to show the right time.</small>
+                  </button>
+                </div>
+                <div className="score-line">⭐ Clock score: {score} | 🔥 Current streak: {streak}</div>
+                <Btn big onClick={onBack} color="#6C5CE7">
+                  ⬅️ Back to Games
+                </Btn>
+              </section>
             </main>
           </div>
         );
@@ -1265,7 +1903,7 @@
 
         useEffect(() => {
           try {
-            const savedName = window.localStorage.getItem("redpixie-clock-games.kid-name") || "";
+            const savedName = window.localStorage.getItem(NAME_STORAGE_KEY) || "";
             if (savedName) {
               setKidName(savedName);
               setNameDraft(savedName);
@@ -1279,10 +1917,19 @@
           if (!trimmed) return;
           setKidName(trimmed);
           try {
-            window.localStorage.setItem("redpixie-clock-games.kid-name", trimmed);
+            window.localStorage.setItem(NAME_STORAGE_KEY, trimmed);
           } catch (_error) {
           }
         }, [nameDraft]);
+
+        const clearName = useCallback(() => {
+          setKidName("");
+          setNameDraft("");
+          try {
+            window.localStorage.removeItem(NAME_STORAGE_KEY);
+          } catch (_error) {
+          }
+        }, []);
 
         if (!mode) {
           return (
@@ -1290,12 +1937,12 @@
               <main className="screen">
                 <section className="panel menu-panel">
                   <div className="hero-turtle" aria-hidden="true">
-                    🐢
+                    ✨
                   </div>
-                  <h1 className="title">{kidName ? `${kidName}'s Clock Challenge!` : "Redpixie Clock Games"}</h1>
+                  <h1 className="title">{kidName ? `Hi, ${kidName}!` : "Redpixie Games"}</h1>
                   <p className="subtitle">
                     {kidName
-                      ? `Help the turtle reach its lunch, ${kidName}, while learning to read and set the clock.`
+                      ? "Choose a game and jump straight in."
                       : "What's your name? The browser will remember it on this device."}
                   </p>
 
@@ -1327,55 +1974,58 @@
                     <div className="name-card">
                       <div className="score-line">Welcome back, {kidName}.</div>
                       <div className="button-row">
-                        <Btn
-                          onClick={() => {
-                            setKidName("");
-                            setNameDraft("");
-                            try {
-                              window.localStorage.removeItem("redpixie-clock-games.kid-name");
-                            } catch (_error) {
-                            }
-                          }}
-                          color="#6C5CE7"
-                        >
-                          Change Name
-                        </Btn>
+                        <Btn onClick={clearName} color="#6C5CE7">Change Name</Btn>
                       </div>
                     </div>
                   )}
 
-                  <div className="menu-actions">
+                  <div className="home-grid">
                     <button
                       type="button"
-                      className="mode-button read"
-                      onClick={() => setMode("read")}
+                      className="game-card clock"
+                      onClick={() => setMode("clock-menu")}
                       disabled={!kidName}
                       style={!kidName ? { opacity: 0.6, cursor: "default" } : undefined}
                     >
-                      🔍 Read the Clock
-                      <small>Look at the clock and pick the right time.</small>
+                      🐢 Clock Games
+                      <small>Read the clock or set the hands yourself.</small>
                     </button>
 
                     <button
                       type="button"
-                      className="mode-button set"
-                      onClick={() => setMode("set")}
+                      className="game-card bonds"
+                      onClick={() => setMode("number-bonds")}
                       disabled={!kidName}
                       style={!kidName ? { opacity: 0.6, cursor: "default" } : undefined}
                     >
-                      ✋ Set the Clock
-                      <small>Move the hands to show the right time.</small>
+                      🎯 Number Bonds
+                      <small>Find the missing number and beat the timer.</small>
                     </button>
                   </div>
-
-                  {score > 0 ? <div className="score-line">⭐ Total score: {score} | 🔥 Current streak: {streak}</div> : null}
                 </section>
               </main>
             </div>
           );
         }
 
-        const props = { onBack: () => setMode(null), score, setScore, streak, setStreak };
+        if (mode === "clock-menu") {
+          return (
+            <ClockMenu
+              kidName={kidName}
+              score={score}
+              streak={streak}
+              onBack={() => setMode(null)}
+              onRead={() => setMode("read")}
+              onSet={() => setMode("set")}
+            />
+          );
+        }
+
+        if (mode === "number-bonds") {
+          return <NumberBondsGame kidName={kidName} onBack={() => setMode(null)} />;
+        }
+
+        const props = { onBack: () => setMode("clock-menu"), score, setScore, streak, setStreak };
         return mode === "read" ? <ReadMode {...props} /> : <SetMode {...props} />;
       }
 
