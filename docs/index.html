@@ -428,11 +428,11 @@
       }
 
       .hint {
+        width: 100%;
         font-size: 16px;
         color: var(--violet);
         font-weight: 800;
         text-align: center;
-        max-width: 460px;
         background: rgba(255, 255, 255, 0.96);
         padding: 10px 18px;
         border-radius: 14px;
@@ -573,6 +573,7 @@
       }
 
       .feedback {
+        width: 100%;
         padding: 14px 24px;
         border-radius: 18px;
         text-align: center;
@@ -580,7 +581,6 @@
         font-size: clamp(18px, 2.6vw, 22px);
         color: #fff;
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-        max-width: 520px;
       }
 
       .feedback.correct {
@@ -1633,6 +1633,12 @@
                           <>
                             <Hand angle={activeSvgAngle} len={108} color="#6C5CE7" w={7} op={0.55} />
                             <HandleKnob angle={activeSvgAngle} color="#6C5CE7" />
+                          </>
+                        ) : null}
+                        {result === "wrong" ? (
+                          <>
+                            <Hand angle={hDeg(time.h, time.m)} len={65} color="#FDCB6E" w={7} op={0.75} />
+                            <Hand angle={mDeg(time.m)} len={95} color="#FDCB6E" w={4} op={0.75} />
                           </>
                         ) : null}
                       </ClockFace>
