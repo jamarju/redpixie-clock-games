@@ -394,6 +394,10 @@
         background: linear-gradient(135deg, var(--mint), var(--mint-soft));
       }
 
+      .mode-button.duration {
+        background: linear-gradient(135deg, #ff8a3d, #ffd166);
+      }
+
       .mode-button small {
         display: block;
         margin-top: 8px;
@@ -445,6 +449,84 @@
         border-radius: 28px;
         padding: clamp(14px, 2vw, 24px);
         box-shadow: 0 10px 28px rgba(108, 92, 231, 0.12);
+      }
+
+      .duration-layout {
+        width: min(100%, 1080px);
+        display: grid;
+        gap: 14px;
+      }
+
+      .duration-clocks {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: clamp(12px, 2vw, 22px);
+        align-items: start;
+      }
+
+      .duration-clock-card {
+        display: grid;
+        gap: 10px;
+        justify-items: center;
+      }
+
+      .duration-clock-label {
+        width: 100%;
+        text-align: center;
+        padding: 10px 14px;
+        border-radius: 16px;
+        color: #fff;
+        font-size: clamp(18px, 2.5vw, 24px);
+        font-weight: 800;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+      }
+
+      .duration-clock-label.start {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      }
+
+      .duration-clock-label.end {
+        background: linear-gradient(135deg, #00b894, #55efc4);
+      }
+
+      .duration-answer {
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+      }
+
+      .duration-input-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .duration-input {
+        width: min(44vw, 150px);
+        min-width: 112px;
+        height: 76px;
+        border-radius: 22px;
+        border: 4px solid rgba(255, 138, 61, 0.34);
+        text-align: center;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.96);
+        font-size: clamp(32px, 5vw, 46px);
+        font-weight: 900;
+      }
+
+      .duration-input:focus {
+        outline: none;
+        border-color: #ff8a3d;
+        box-shadow: 0 0 0 4px rgba(255, 138, 61, 0.16);
+      }
+
+      .difficulty-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .choices {
@@ -659,6 +741,69 @@
         transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
+      .cat {
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 92px;
+        height: 92px;
+        transform: translateX(-50%);
+        z-index: 3;
+        transition: left 0.9s cubic-bezier(0.25, 1.45, 0.5, 1);
+      }
+
+      .cat.pounce {
+        animation: cat-pounce 0.9s ease-out;
+      }
+
+      .cat.sad {
+        animation: cat-sad 0.9s ease-in-out;
+      }
+
+      .cat-frame {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        opacity: 0;
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .cat.pounce .cat-ready {
+        animation: cat-frame-ready 0.9s linear forwards;
+      }
+
+      .cat.pounce .cat-crouch {
+        animation: cat-frame-crouch 0.9s linear forwards;
+      }
+
+      .cat.pounce .cat-pounce-frame {
+        animation: cat-frame-pounce 0.9s linear forwards;
+      }
+
+      .cat.pounce .cat-land {
+        animation: cat-frame-land 0.9s linear forwards;
+      }
+
+      .cat.sad .cat-sad-frame {
+        opacity: 1;
+      }
+
+      .mouse {
+        position: absolute;
+        right: -18px;
+        bottom: -4px;
+        width: 74px;
+        height: 74px;
+        z-index: 2;
+        object-fit: contain;
+        user-select: none;
+        pointer-events: none;
+      }
+
       .win-banner {
         text-align: center;
         margin-top: 8px;
@@ -757,6 +902,78 @@
         }
       }
 
+      @keyframes cat-pounce {
+        0% {
+          transform: translateX(-50%) translateY(0) rotate(0deg);
+        }
+
+        45% {
+          transform: translateX(-50%) translateY(-24px) rotate(-7deg);
+        }
+
+        100% {
+          transform: translateX(-50%) translateY(0) rotate(0deg);
+        }
+      }
+
+      @keyframes cat-sad {
+        0%, 100% {
+          transform: translateX(-50%) translateY(0);
+        }
+
+        50% {
+          transform: translateX(-50%) translateY(4px);
+        }
+      }
+
+      @keyframes cat-frame-ready {
+        0%, 23% {
+          opacity: 1;
+        }
+
+        24%, 100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes cat-frame-crouch {
+        0%, 23% {
+          opacity: 0;
+        }
+
+        24%, 47% {
+          opacity: 1;
+        }
+
+        48%, 100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes cat-frame-pounce {
+        0%, 47% {
+          opacity: 0;
+        }
+
+        48%, 74% {
+          opacity: 1;
+        }
+
+        75%, 100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes cat-frame-land {
+        0%, 74% {
+          opacity: 0;
+        }
+
+        75%, 100% {
+          opacity: 1;
+        }
+      }
+
       @media (max-width: 640px) {
         .screen {
           min-height: calc(100vh - 22px);
@@ -783,6 +1000,10 @@
 
         .mode-button {
           text-align: center;
+        }
+
+        .duration-clocks {
+          grid-template-columns: 1fr;
         }
       }
 
@@ -904,6 +1125,29 @@
         "🎊 I love you, friend!",
         "✨ That was DEE-LICIOUS!",
       ];
+      const CAT_FWD = [
+        "Pounce!",
+        "Tiny paws, big jump!",
+        "Closer to the mouse!",
+        "Orange zoom!",
+        "Whisker wiggle!",
+        "Sneaky kitty!",
+        "Mew! I got closer!",
+        "Soft paws, fast paws!",
+      ];
+      const CAT_SAD = [
+        "Mew... still thinking.",
+        "Oops, whiskers down.",
+        "I'll wait here.",
+        "A tiny sad meow.",
+        "So close, friend.",
+      ];
+      const CAT_WIN = [
+        "The cat caught the mouse cuddle!",
+        "Purr-fect chase!",
+        "Tiny paws win!",
+        "Mouse says squeak!",
+      ];
       const STEPS = 8;
       const NAME_STORAGE_KEY = "redpixie-games.kid-name";
       const RANKINGS_STORAGE_KEY = "redpixie-games.number-bonds-rankings";
@@ -926,6 +1170,35 @@
         return copy;
       };
       const rTime = () => ({ h: rand(1, 12), m: FIVES[rand(0, 11)] });
+
+      function fromTotal(total) {
+        const normalized = ((total % 720) + 720) % 720;
+        const h0 = Math.floor(normalized / 60);
+        return { h: h0 === 0 ? 12 : h0, m: normalized % 60 };
+      }
+
+      function toTotal({ h, m }) {
+        return (h % 12) * 60 + m;
+      }
+
+      function durationQuestion(level) {
+        if (level === "easy") {
+          const duration = FIVES[rand(1, 11)];
+          const starts = FIVES.filter((m) => m + duration < 60);
+          const start = { h: rand(1, 12), m: rP(starts) };
+          return { start, end: { h: start.h, m: start.m + duration }, duration };
+        }
+
+        if (level === "medium") {
+          const start = { h: rand(1, 12), m: rP(FIVES) };
+          const duration = FIVES[rand(1, 11)];
+          return { start, end: fromTotal(toTotal(start) + duration), duration };
+        }
+
+        const start = { h: rand(1, 12), m: rand(0, 59) };
+        const duration = rand(1, 59);
+        return { start, end: fromTotal(toTotal(start) + duration), duration };
+      }
 
       function tTxt(h, m) {
         if (m === 0) return `${h} o'clock`;
@@ -1118,6 +1391,60 @@
               </div>
             </div>
             {won ? <div className="win-banner">🎉 The turtle made it! 🎉</div> : null}
+          </div>
+        );
+      }
+
+      function CatTrack({ pos, speech, won, mood, hop }) {
+        const pct = Math.min(pos / STEPS, 1) * 100;
+        const dots = [];
+        for (let i = 0; i <= STEPS; i += 1) dots.push(i);
+
+        return (
+          <div className="track-wrap">
+            {speech ? (
+              <div className="speech" style={{ left: `calc(${pct}% - 10px)`, borderColor: "#ff8a3d" }}>
+                {speech}
+                <div className="speech-arrow" style={{ borderTopColor: "#ff8a3d" }} />
+              </div>
+            ) : null}
+            <div className="track" style={{ background: "linear-gradient(to right, #fff3e0, #e8f8f5)" }}>
+              {dots.map((i) => (
+                <div
+                  key={i}
+                  className="stone"
+                  style={{
+                    left: `${(i / STEPS) * 100}%`,
+                    width: 10,
+                    height: 10,
+                    background: i === STEPS ? "transparent" : "#ffd59e",
+                    zIndex: 1,
+                  }}
+                />
+              ))}
+              <img className="mouse" src="assets/mouse.png" alt="" aria-hidden="true" />
+              <div
+                key={hop}
+                className={`cat${mood === "pounce" ? " pounce" : ""}${mood === "sad" ? " sad" : ""}`}
+                style={{
+                  left: `${pct}%`,
+                  filter: won ? "drop-shadow(0 0 8px gold)" : "none",
+                }}
+                aria-hidden="true"
+              >
+                {mood === "sad" ? (
+                  <img className="cat-frame cat-sad-frame" src="assets/cat-sad.png" alt="" />
+                ) : (
+                  <>
+                    <img className="cat-frame cat-ready" src="assets/cat-ready.png" alt="" />
+                    <img className="cat-frame cat-crouch" src="assets/cat-crouch.png" alt="" />
+                    <img className="cat-frame cat-pounce-frame" src="assets/cat-pounce.png" alt="" />
+                    <img className="cat-frame cat-land" src="assets/cat-land.png" alt="" />
+                  </>
+                )}
+              </div>
+            </div>
+            {won ? <div className="win-banner" style={{ color: "#ff8a3d" }}>🎉 The cat caught the mouse! 🎉</div> : null}
           </div>
         );
       }
@@ -1697,6 +2024,200 @@
         );
       }
 
+      function DurationMode({ onBack, score, setScore, streak, setStreak }) {
+        const [difficulty, setDifficulty] = useState("easy");
+        const [question, setQuestion] = useState(() => durationQuestion("easy"));
+        const [answer, setAnswer] = useState("");
+        const [result, setResult] = useState(null);
+        const [msg, setMsg] = useState("");
+        const [catPos, setCatPos] = useState(0);
+        const [catSpeech, setCatSpeech] = useState("");
+        const [catWon, setCatWon] = useState(false);
+        const [catMood, setCatMood] = useState("pounce");
+        const [hop, setHop] = useState(0);
+
+        const go = useCallback((level = difficulty) => {
+          setQuestion(durationQuestion(level));
+          setAnswer("");
+          setResult(null);
+          setMsg("");
+        }, [difficulty]);
+
+        const reset = useCallback(() => {
+          setCatPos(0);
+          setCatSpeech("");
+          setCatWon(false);
+          setCatMood("pounce");
+          setHop((h) => h + 1);
+          go();
+        }, [go]);
+
+        const chooseDifficulty = useCallback((level) => {
+          setDifficulty(level);
+          setQuestion(durationQuestion(level));
+          setAnswer("");
+          setResult(null);
+          setMsg("");
+          setCatSpeech("");
+          setCatMood("pounce");
+        }, []);
+
+        const checkAnswer = useCallback(() => {
+          if (result === "correct" || catWon) return;
+          const value = Number.parseInt(answer, 10);
+          if (!Number.isFinite(value)) {
+            setResult("wrong");
+            setMsg("Type the minutes first.");
+            setCatMood("sad");
+            setCatSpeech(rP(CAT_SAD));
+            setHop((h) => h + 1);
+            return;
+          }
+
+          if (value === question.duration) {
+            setResult("correct");
+            setMsg(rP(CHEERS));
+            setScore((s) => s + 1);
+            setStreak((s) => s + 1);
+            setCatMood("pounce");
+            setCatPos((p) => {
+              const np = Math.min(p + 1, STEPS);
+              if (np >= STEPS) setCatWon(true);
+              return np;
+            });
+            setCatSpeech(rP(CAT_FWD));
+            setHop((h) => h + 1);
+            return;
+          }
+
+          setResult("wrong");
+          setMsg(`${rP(OOPS)} — It was ${question.duration} minutes`);
+          setStreak(0);
+          setCatMood("sad");
+          setCatSpeech(rP(CAT_SAD));
+          setHop((h) => h + 1);
+        }, [answer, catWon, question.duration, result, setScore, setStreak]);
+
+        const difficultyLabels = {
+          easy: "Super Easy",
+          medium: "Medium",
+          hard: "Hard",
+        };
+
+        return (
+          <div className="app-shell">
+            <main className="screen game-screen">
+              <div className="top-bar">
+                <button type="button" className="back-button" onClick={onBack} aria-label="Go back">
+                  ⬅️
+                </button>
+                <div className="top-bar-spacer">⭐ {score} | 🔥 {streak} streak</div>
+              </div>
+
+              <CatTrack pos={catPos} speech={catSpeech} won={catWon} mood={catMood} hop={hop} />
+
+              {catWon ? (
+                <div className="panel menu-panel">
+                  <div style={{ fontSize: 18, color: "#ff8a3d", fontWeight: 800 }}>{rP(CAT_WIN)}</div>
+                  <Btn big onClick={reset} color="#ff8a3d">
+                    🐱 New Chase!
+                  </Btn>
+                </div>
+              ) : (
+                <div className="duration-layout">
+                  <section className="compact-panel">
+                    <h1 className="mode-heading">🐱 How long did it take?</h1>
+                    <div className="difficulty-row" aria-label="Choose difficulty">
+                      {["easy", "medium", "hard"].map((level) => (
+                        <Btn
+                          key={level}
+                          onClick={() => chooseDifficulty(level)}
+                          sel={difficulty === level}
+                          color={level === "easy" ? "#00B894" : level === "medium" ? "#ff8a3d" : "#6C5CE7"}
+                        >
+                          {difficultyLabels[level]}
+                        </Btn>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="duration-clocks">
+                    <div className="duration-clock-card compact-panel">
+                      <div className="duration-clock-label start">Leaves school</div>
+                      <div className="clock-frame">
+                        <ClockFace roman={false}>
+                          <Hand angle={hDeg(question.start.h, question.start.m)} len={65} color="#6C5CE7" w={7} />
+                          <Hand angle={mDeg(question.start.m)} len={95} color="#00B894" w={4} />
+                        </ClockFace>
+                      </div>
+                    </div>
+
+                    <div className="duration-clock-card compact-panel">
+                      <div className="duration-clock-label end">Arrives home</div>
+                      <div className="clock-frame">
+                        <ClockFace roman={false}>
+                          <Hand angle={hDeg(question.end.h, question.end.m)} len={65} color="#6C5CE7" w={7} />
+                          <Hand angle={mDeg(question.end.m)} len={95} color="#00B894" w={4} />
+                        </ClockFace>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="compact-panel duration-answer">
+                    <div className="prompt-card" style={{ background: "linear-gradient(135deg, #ff8a3d, #ffd166)" }}>
+                      How many minutes did it take?
+                    </div>
+                    <div className="duration-input-row">
+                      <label className="sr-only" htmlFor="duration-answer">
+                        Minutes
+                      </label>
+                      <input
+                        id="duration-answer"
+                        className="duration-input"
+                        type="number"
+                        inputMode="numeric"
+                        min="1"
+                        max="59"
+                        value={answer}
+                        onChange={(e) => {
+                          setAnswer(e.target.value);
+                          if (result === "wrong") {
+                            setResult(null);
+                            setMsg("");
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") checkAnswer();
+                        }}
+                        placeholder="?"
+                        autoFocus
+                      />
+                      <div style={{ fontSize: "clamp(24px,4vw,36px)", fontWeight: 900, color: "#ff8a3d" }}>
+                        minutes
+                      </div>
+                    </div>
+
+                    <FeedbackBanner result={result} msg={msg} />
+                    <div className="button-row">
+                      <Btn big onClick={checkAnswer} color="#ff8a3d" dis={result === "correct"}>
+                        ✓ Check
+                      </Btn>
+                      {result === "correct" ? (
+                        <Btn big onClick={() => go()} color="#00B894">
+                          Next ➡️
+                        </Btn>
+                      ) : null}
+                    </div>
+                  </section>
+
+                  {result === "correct" ? <Confetti /> : null}
+                </div>
+              )}
+            </main>
+          </div>
+        );
+      }
+
       function NumberBondsGame({ kidName, onBack }) {
         const [targetNumber, setTargetNumber] = useState(10);
         const [givenNumber, setGivenNumber] = useState(0);
@@ -2083,16 +2604,16 @@
         );
       }
 
-      function ClockMenu({ kidName, score, streak, onBack, onRead, onSet }) {
+      function ClockMenu({ kidName, score, streak, onBack, onRead, onSet, onDuration }) {
         return (
           <div className="app-shell">
             <main className="screen home-screen">
               <section className="panel menu-panel">
                 <div className="hero-turtle" aria-hidden="true">
-                  🐢
+                  🐢🐱
                 </div>
                 <h1 className="title">{kidName}'s Clock Games</h1>
-                <p className="subtitle">Pick a clock challenge and help the turtle reach lunch.</p>
+                <p className="subtitle">Pick a clock challenge and help a tiny friend reach their prize.</p>
                 <div className="menu-actions">
                   <button type="button" className="mode-button read" onClick={onRead}>
                     🔍 Read the Clock
@@ -2101,6 +2622,10 @@
                   <button type="button" className="mode-button set" onClick={onSet}>
                     ✋ Set the Clock
                     <small>Move the hands to show the right time.</small>
+                  </button>
+                  <button type="button" className="mode-button duration" onClick={onDuration}>
+                    🐱 Chase the Minutes
+                    <small>Read two clocks and type how many minutes passed.</small>
                   </button>
                 </div>
                 <div className="score-line">⭐ Clock score: {score} | 🔥 Current streak: {streak}</div>
@@ -2236,6 +2761,7 @@
               onBack={() => setMode(null)}
               onRead={() => setMode("read")}
               onSet={() => setMode("set")}
+              onDuration={() => setMode("duration")}
             />
           );
         }
@@ -2245,7 +2771,9 @@
         }
 
         const props = { onBack: () => setMode("clock-menu"), score, setScore, streak, setStreak };
-        return mode === "read" ? <ReadMode {...props} /> : <SetMode {...props} />;
+        if (mode === "read") return <ReadMode {...props} />;
+        if (mode === "set") return <SetMode {...props} />;
+        return <DurationMode {...props} />;
       }
 
       ReactDOM.createRoot(document.getElementById("root")).render(<App />);
